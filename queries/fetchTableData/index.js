@@ -1,0 +1,1 @@
+export { fetchTableData } from "./fetchTableData";
