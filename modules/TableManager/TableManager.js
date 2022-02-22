@@ -5,21 +5,19 @@ import { Paginator } from "./components/paginator";
 import { useAdaptData } from "./hooks/useAdaptData";
 import { useTableManager } from "./hooks/useTableManager";
 
-export const TableManager = ({ data, loading, error, rowsPerPage }) => {
+import { PAGE_SIZE } from "../../hooks/useTableData/useTableData";
+
+export const TableManager = ({ data, loading, error, onAction: _onAction, requestState }) => {
   const columns = data?.columns ?? [];
-  const rows = data?.topics ?? [];
+  const rows = data?.rows ?? [];
+  const { searchQuery, pageNumber } = requestState;
 
   const adaptedTableData = useAdaptData({ data: rows });
 
-  const {
-    tableConfig,
-    paginationConfig,
-    searchQuery,
-    onAction
-  } = useTableManager({
+  const { tableConfig, onAction } = useTableManager({
     columns,
     rows: adaptedTableData,
-    rowsPerPage
+    onAction: _onAction,
   });
 
   return (
@@ -33,21 +31,16 @@ export const TableManager = ({ data, loading, error, rowsPerPage }) => {
         width: "100%",
         backgroundColor: "#f2f2f2",
         padding: "16px",
-        overflowX: "auto"
+        overflowX: "auto",
       }}
     >
       <Header onAction={onAction} searchQuery={searchQuery} />
-      <Table
-        loading={loading}
-        error={error}
-        tableConfig={tableConfig}
-        onAction={onAction}
-      />
+      <Table loading={loading} error={error} tableConfig={tableConfig} onAction={onAction} />
       {rows.length ? (
         <Paginator
-          rowsCount={paginationConfig.rowsCount}
-          pageNumber={paginationConfig.pageNumber}
-          rowsPerPage={rowsPerPage}
+          rowsCount={data.totalCount}
+          pageNumber={pageNumber}
+          rowsPerPage={PAGE_SIZE}
           onChange={onAction}
         />
       ) : null}
